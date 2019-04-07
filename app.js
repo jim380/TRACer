@@ -27,32 +27,104 @@
 const fetch = require('node-fetch');
 
 const TeleBot = require('telebot');
+//-----------------------------------------------------------------------------------------//
+//                                       Buttons                                           //
+//-----------------------------------------------------------------------------------------//
+// button naming
+const BUTTONS = {
+  OriginTrail: {
+      label: 'OriginTrail',
+      command: '/trac'
+  },
+  hide: {
+      label: '⌨ Hide Keyboard',
+      command: '/hide'
+  },
+  home: {
+    label: '⌂ Home',
+    command: '/home'
+  },
+  tracNodeInfo: {
+    label: 'Info',
+    command: '/trac_info'
+  },
+  tracNodeBalance: {
+    label: 'Balance',
+    command: '/trac_balance'
+  
+  },
+};
+//----------------------------------------------------//
+//                       Plug-ins                     //
+//----------------------------------------------------//
 const bot = new TeleBot({
   token: '',
   usePlugins: ['namedButtons','askUser'],
   pluginFolder: '../plugins/',
   pluginConfig: {
       namedButtons: {
-          //buttons: BUTTONS
+        buttons: BUTTONS
       }
   }
 });
+//----------------------------------------------------//
+//                  Keyboard - General                //
+//----------------------------------------------------//
+// fire up top-level keyboard
+bot.on(['/start', '/home', '/backhome'], msg => {
+  let replyMarkup = bot.keyboard([
+      // ['/mex', '/cosmos'],
+      // ['/home','/hide']
+      [BUTTONS.OriginTrail.label, BUTTONS.hide.label],
+      //['/home','/hide']
+  ], {resize: true});
 
-function makeRequest(verb, endpoint, data = {}) {
+  return bot.sendMessage(msg.chat.id, 'How can I help you?', {replyMarkup});
+
+});
+
+// Hide keyboard
+bot.on('/hide', msg => {
+  return bot.sendMessage(
+      msg.chat.id, 'Keyboard is now hidden. Type /start to re-enable.', {replyMarkup: 'hide'}
+  );
+});
+//----------------------------------------------------//
+//                  Keyboard - OriginTrail                 //
+//----------------------------------------------------//
+bot.on(['/trac'], msg => {
+  let replyMarkup = bot.keyboard([
+    [BUTTONS.tracNodeInfo.label, BUTTONS.tracNodeBalance.label, BUTTONS.home.label, BUTTONS.hide.label]
+  ], {resize: true});
+
+  return bot.sendMessage(msg.chat.id, 'What would you like to query?', {parseMode: 'Markdown', replyMarkup});
+
+});
+
+function makeRequest(name, verb, endpoint, data = {}) {
   postBody = JSON.stringify(data);
-
+  let url = '';
   const headers = {
     'content-type': 'application/json',
-    //'accept': 'application/json',
+    'accept': 'application/json',
   };
 
   const requestOptions = {
     method: verb,
-    body: JSON.stringify(data),
+    //body: JSON.stringify(data),
     headers,
   };
 
-  const url = 'http://watcher.ari.omg.network/' + endpoint;
+  if (verb !== 'GET') requestOptions.body = postBody;  // GET/HEAD requests can't have body
+
+  if (name == "omg") {
+    url = 'http://watcher.ari.omg.network/' + endpoint;
+  } else {
+    url = '' + endpoint;
+  }
+  
+  //http://149.28.213.157:8900/api/{endpoint}
+ 
 
   // fetch(url, requestOptions)
   // .then(res => res.json())
@@ -67,10 +139,10 @@ const handleErrors = (e,chatid) => {
   //console.log(e);
   if (e.name == 'TypeError') {
     //console.error(e);
-    bot.sendMessage(chatid,`Account not found!`);  
+    bot.sendMessage(chatid,`${e}`);  
   } else {
     //console.error(e);
-    bot.sendMessage(chatid,`Ooops... connection issue!`);
+    bot.sendMessage(chatid,`${e}`);
   }
 }
 
@@ -82,7 +154,7 @@ bot.on('/balance', async (msg) => {
 
 bot.on('ask.accountAddr', async msg => {
   const addr = msg.text;
-  makeRequest('POST', 'account.get_balance', {address: addr})
+  makeRequest('omg','POST', 'account.get_balance', {address: addr})
   .then(res => res.json())
   .then(async response => {
     //console.log(response);
@@ -104,7 +176,7 @@ bot.on('/utxo', async (msg) => {
 
 bot.on('ask.accountUTXO', async (msg) => {
   const addr = msg.text;
-  makeRequest('POST', 'account.get_utxos', {address: addr})
+  makeRequest('omg','POST', 'account.get_utxos', {address: addr})
   .then(res => res.json())
   .then(async response => {
     console.log(response);
@@ -126,7 +198,7 @@ bot.on('/txn', async (msg) => {
 
 bot.on('ask.accountTXN', async (msg) => {
   const addr = msg.text;
-  makeRequest('POST', 'account.get_transactions', {address: addr})
+  makeRequest('omg','POST', 'account.get_transactions', {address: addr})
   .then(res => res.json())
   .then(async response => {
     console.log(response);
@@ -148,10 +220,45 @@ bot.on('ask.accountTXN', async (msg) => {
   .catch(error => handleErrors(error, msg.from.id));
 });
 
-// transaction
-//makeRequest('POST', 'transaction.all', {address: '0x949c49c809e83f586b188b46d008a8ceebc23a8c'});
+// trac - node info
+bot.on('/trac_info', async (msg) => {
+  //const addr = msg.text;
+  makeRequest('trac','GET', 'info', data={})
+  .then(res => res.json())
+  .then(async response => {
+    //console.log(response);
+    // console.log(response.data[0].results);
+    // console.log(response.data[0].block);
+        await bot.sendMessage(msg.from.id,`Network ID: \`${response.network.contact.network_id}\`\n`
+        + `Wallet: \`${response.network.contact.wallet}\`\n`
+        + `Identity: \`${response.network.identity}\`\n`
+        +`ERC-725 Identity: \`${response.erc_725_identity}\`\n`
+        , {parseMode: 'Markdown'})
+  })
+  // or JSON.stringify(response)
+  .catch(error => handleErrors(error, msg.from.id));
+});
 
-// block
-
+// trac - balance
+// trac - node info
+bot.on('/trac_balance', async (msg) => {
+  //const addr = msg.text;
+  makeRequest('trac','GET', 'balance', data={})
+  .then(res => res.json())
+  .then(async response => {
+    //console.log(response);
+    // console.log(response.data[0].results);
+    // console.log(response.data[0].block);
+        await bot.sendMessage(msg.from.id,`Address: \`${response.wallet.address}\`\n`
+        + `Minimal Stake: \`${response.profile.minimalStake/1e18}\` TRAC\n`
+        + `Reserved: \`${response.profile.reserved/1e18}\` TRAC\n`
+        + `Staked: \`${response.profile.staked/1e18}\` TRAC\n`
+        +`ETH Balance: \`${response.wallet.ethBalance/1e18}\` ETH\n`
+        +`Token Balance: \`${response.wallet.tokenBalance/1e18}\` TRAC\n`
+        , {parseMode: 'Markdown'})
+  })
+  // or JSON.stringify(response)
+  .catch(error => handleErrors(error, msg.from.id));
+});
 
 bot.connect();
