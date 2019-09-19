@@ -25,8 +25,8 @@
 //  
 //  ============================================================================
 const fetch = require('node-fetch');
-
 const TeleBot = require('telebot');
+const config = require("./config.json");
 //-----------------------------------------------------------------------------------------//
 //                                       Buttons                                           //
 //-----------------------------------------------------------------------------------------//
@@ -58,7 +58,7 @@ const BUTTONS = {
 //                       Plug-ins                     //
 //----------------------------------------------------//
 const bot = new TeleBot({
-  token: '',
+  token: config.token,
   usePlugins: ['namedButtons','askUser'],
   pluginFolder: '../plugins/',
   pluginConfig: {
@@ -120,17 +120,9 @@ function makeRequest(name, verb, endpoint, data = {}) {
   if (name == "omg") {
     url = 'http://watcher.ari.omg.network/' + endpoint;
   } else {
-    url = '' + endpoint;
+    url = config.url + endpoint;
   }
   
-  //http://149.28.213.157:8900/api/{endpoint}
- 
-
-  // fetch(url, requestOptions)
-  // .then(res => res.json())
-  // .then(async response => await console.log(`${endpoint}\n\u200b\n${response.data[0].amount/1e18} ETH\n-----------------\n`))
-  // // or JSON.stringify(response)
-  // .catch(error => console.error('Error:\n', error));
   return fetch(url, requestOptions);
 }
 
@@ -164,7 +156,6 @@ bot.on('ask.accountAddr', async msg => {
       await bot.sendMessage(msg.from.id, `invalid address`)
     )
   })
-    //console.log(`Balance\n\u200b\n${response.data[0].amount/1e18} ETH\n-----------------\n`))
   // or JSON.stringify(response)
   .catch(error => handleErrors(error, msg.from.id));
 });
@@ -202,8 +193,6 @@ bot.on('ask.accountTXN', async (msg) => {
   .then(res => res.json())
   .then(async response => {
     console.log(response);
-    // console.log(response.data[0].results);
-    // console.log(response.data[0].block);
     let i = 1;
     for (let el of response.data) {
       if (msg.text.length === 42) {
@@ -227,8 +216,6 @@ bot.on('/trac_info', async (msg) => {
   .then(res => res.json())
   .then(async response => {
     //console.log(response);
-    // console.log(response.data[0].results);
-    // console.log(response.data[0].block);
         await bot.sendMessage(msg.from.id,`Network ID: \`${response.network.contact.network_id}\`\n`
         + `Wallet: \`${response.network.contact.wallet}\`\n`
         + `Identity: \`${response.network.identity}\`\n`
@@ -247,8 +234,6 @@ bot.on('/trac_balance', async (msg) => {
   .then(res => res.json())
   .then(async response => {
     //console.log(response);
-    // console.log(response.data[0].results);
-    // console.log(response.data[0].block);
         await bot.sendMessage(msg.from.id,`Address: \`${response.wallet.address}\`\n`
         + `Minimal Stake: \`${response.profile.minimalStake/1e18}\` TRAC\n`
         + `Reserved: \`${response.profile.reserved/1e18}\` TRAC\n`
