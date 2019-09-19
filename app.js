@@ -120,9 +120,9 @@ function makeRequest(name, verb, endpoint, data = {}) {
   if (name == "omg") {
     url = 'http://watcher.ari.omg.network/' + endpoint;
   } else {
-    url = config.url + endpoint;
+    url = config.url + ":8900/api/" + endpoint;
   }
-  
+
   return fetch(url, requestOptions);
 }
 
