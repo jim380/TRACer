@@ -25,9 +25,6 @@ Example:
 
 #### Method 2 – via docker
 COMMING SOON<br>
-4. ```$ npm i```
-5. ```$ docker build -t <image_name> .```
-6. ```$ docker run -i --name <image_name> <container_name>```
 
 ## Contact
 @jim380
