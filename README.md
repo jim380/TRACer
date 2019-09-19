@@ -24,9 +24,10 @@ Example:
 5. ```$ node app.js```
 
 #### Method 2 – via docker
+COMMING SOON
 4. ```$ npm i```
 5. ```$ docker build -t <image_name> .```
 6. ```$ docker run -i --name <image_name> <container_name>```
 
 ## Contact
-@aakatev<br/>@jim380
+@jim380
