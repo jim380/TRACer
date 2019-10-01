@@ -20,11 +20,22 @@ Example:
 
 ## Deploy
 #### Method 1 – from source
-4. ```$ npm i```
-5. ```$ node app.js```
+4. ```$ npm i```<br>
+5. ```$ node app.js```<br>
 
 #### Method 2 – via docker
+<<<<<<< HEAD
+4. ```$ docker build -t <image_name> .```<br>
+5. ```$ docker run --rm -dt -v $(pwd):/usr/src/TRACer --name <image_name> <container_name> .```<br>
+
+## Hot-load code modification if needed
+6. ```$ docker exec -it <container_name> bash ```<br>
+7. ```$ apt-get update ```<br>
+8. ```$ apt-get install nano```<br>
+9. ```$ export TERM=xterm```<br>
+=======
 COMMING SOON<br>
+>>>>>>> e6cd8f0cb0f827db716b4d2aacb2ac46c9cbf6aa
 
 ## Contact
 @jim380

@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "node-fetch": "^2.3.0",
+    "nodemon": "^1.19.3",
     "telebot": "^1.2.6"
   }
 }
