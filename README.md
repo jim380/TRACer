@@ -24,7 +24,6 @@ Example:
 5. ```$ node app.js```<br>
 
 #### Method 2 – via docker
-<<<<<<< HEAD
 4. ```$ docker build -t <image_name> .```<br>
 5. ```$ docker run --rm -dt -v $(pwd):/usr/src/TRACer --name <image_name> <container_name> .```<br>
 
@@ -33,9 +32,6 @@ Example:
 7. ```$ apt-get update ```<br>
 8. ```$ apt-get install nano```<br>
 9. ```$ export TERM=xterm```<br>
-=======
-COMMING SOON<br>
->>>>>>> e6cd8f0cb0f827db716b4d2aacb2ac46c9cbf6aa
 
 ## Contact
 @jim380
